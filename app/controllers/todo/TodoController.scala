@@ -22,7 +22,6 @@ class TodoController @Inject()(
   val todoCategoryRepository = TodoCategoryRepository()
 
   def list() = Action async { implicit request: Request[AnyContent] =>
-//    repository.add(Todo(categoryId = 1, title = "test", body = "test", state = 0))
     for {
       todos <- todoRepository.all()
       categories <- todoCategoryRepository.all()
@@ -47,22 +46,21 @@ class TodoController @Inject()(
   }
 
   def store() = Action async { implicit request: Request[AnyContent] =>
+
     TodoFormData.form.bindFromRequest().fold(
       (errorForm: Form[TodoFormData]) => {
-        // 何かを選択するとここのログが以下の感じで出ている
-        // Form(play.api.data.ObjectMapping3@105144b1,Map(csrfToken -> 0f660f0008b169e301a090b40539973db46f60fc-1700120318983-681d5d15c0f7ba30651d0ee1, categoryId -> Some(1), title -> test, body -> test),List(FormError(categoryId,List(error.number),List())),None)
-        println(errorForm)
-        Future.successful(Redirect(routes.TodoController.list()))
+        for {
+          categories <- todoCategoryRepository.all()
+        } yield {
+          val categoriesForSelect = categories.map(category => (category.id.toString, category.name)).toMap
+          BadRequest(views.html.todo.add(errorForm, categoriesForSelect))
+        }
       },
       (form: TodoFormData) => {
-        // 何も選ばないとここに来る
-        // NoneはちゃんとNoneと判定されているみたい
-        println("成功しているよ")
         for {
-          _ <- todoRepository.add(Todo(form.categoryId.toLong , form.title, form.body, 0))
+          _ <- todoRepository.add(Todo(form.categoryId.toLong, form.title, form.body, 0))
         } yield Redirect(routes.TodoController.list())
       }
     )
-
   }
 }

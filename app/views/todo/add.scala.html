@@ -1,5 +1,5 @@
 @import controllers.form.TodoFormData
-@(form: Form[TodoFormData], categories: Map[String, String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
+@(form: Form[TodoFormData], categories: Map[String,String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = "Todo登録画面") {
     @helper.form(action = controllers.todo.routes.TodoController.store()) {
