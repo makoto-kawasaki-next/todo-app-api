@@ -7,24 +7,24 @@ package lib.persistence
 
 import scala.concurrent.Future
 import ixias.persistence.SlickRepository
-import lib.model.Todo
+import lib.model.TodoCategory
 import slick.jdbc.JdbcProfile
 
 // UserRepository: UserTableへのクエリ発行を行うRepository層の定義
 //~~~~~~~~
-case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
-  extends SlickRepository[Todo.Id, Todo, P]
+case class TodoCategoryRepository[P <: JdbcProfile] (implicit val driver: P)
+  extends SlickRepository[TodoCategory.Id, TodoCategory, P]
   with db.SlickResourceProvider[P] {
 
   import api._
 
-  def all(): Future[Seq[Todo]] = RunDBAction(TodoTable, "slave")(_.result)
+  def all(): Future[Seq[TodoCategory]] = RunDBAction(TodoCategoryTable, "slave")(_.result)
 
   /**
     * Get User Data
     */
   def get(id: Id): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(TodoTable, "slave") { _
+    RunDBAction(TodoCategoryTable, "slave") { _
       .filter(_.id === id)
       .result.headOption
   }
@@ -33,7 +33,7 @@ case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
     * Add User Data
    */
   def add(entity: EntityWithNoId): Future[Id] = {
-    val res = RunDBAction(TodoTable) { slick =>
+    val res = RunDBAction(TodoCategoryTable) { slick =>
       slick returning slick.map(_.id) += entity.v
     }
     res
@@ -43,7 +43,7 @@ case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
    * Update User Data
    */
   def update(entity: EntityEmbeddedId): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(TodoTable) { slick =>
+    RunDBAction(TodoCategoryTable) { slick =>
       val row = slick.filter(_.id === entity.id)
       for {
         old <- row.result.headOption
@@ -58,7 +58,7 @@ case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
    * Delete User Data
    */
   def remove(id: Id): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(TodoTable) { slick =>
+    RunDBAction(TodoCategoryTable) { slick =>
       val row = slick.filter(_.id === id)
       for {
         old <- row.result.headOption
