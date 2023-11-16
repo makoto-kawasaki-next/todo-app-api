@@ -40,7 +40,7 @@ class TodoController @Inject()(
     for {
       categories <- todoCategoryRepository.all()
     } yield {
-      val categoriesForSelect = categories.map(category => (category.id.toString, category.name)).toMap
+      val categoriesForSelect = categories.map(category => (category.id.get.toString, category.name)).toMap
       Ok(views.html.todo.add(TodoFormData.form, categoriesForSelect))
     }
   }
@@ -52,7 +52,7 @@ class TodoController @Inject()(
         for {
           categories <- todoCategoryRepository.all()
         } yield {
-          val categoriesForSelect = categories.map(category => (category.id.toString, category.name)).toMap
+          val categoriesForSelect = categories.map(category => (category.id.get.toString, category.name)).toMap
           BadRequest(views.html.todo.add(errorForm, categoriesForSelect))
         }
       },
