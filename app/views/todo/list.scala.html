@@ -3,7 +3,7 @@
 @(todos: Seq[TodoListOutput])
 
 @main(title = "Todo一覧画面") {
-
+    <a style="padding: 10px" href="@controllers.todo.routes.TodoController.add()"><button type="button" class="btn btn-outline-primary">追加</button></a>
     <table class="table">
         <thead>
             <th scope="col">id</th>

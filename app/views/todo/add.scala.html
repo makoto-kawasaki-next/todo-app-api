@@ -1,0 +1,12 @@
+@import controllers.form.TodoFormData
+@(form: Form[TodoFormData], categories: Map[String, String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
+
+@main(title = "Todo登録画面") {
+    @helper.form(action = controllers.todo.routes.TodoController.store()) {
+        @helper.CSRF.formField
+        @helper.select(form("categoryId"), options = helper.options(categories), '_default -> "選択してください")
+        @helper.inputText(form("title"), '_label -> "タイトル")
+        @helper.inputText(form("body"), '_label -> "本文")
+        <input type="submit" class="btn btn-primary" value="登録">
+    }
+}
