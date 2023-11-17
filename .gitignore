@@ -1,0 +1,7 @@
+.idea
+/app/target/
+/docker/db/data/
+/logs/
+/project/project/
+/project/target/
+/target/
