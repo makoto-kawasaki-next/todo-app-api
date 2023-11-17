@@ -9,6 +9,7 @@
             <th scope="col">カテゴリ</th>
             <th scope="col">タイトル</th>
             <th scope="col">本文</th>
+            <th scope="col">ステータス</th>
         </thead>
         <tbody>
         @for(todo <- todos) {
@@ -17,6 +18,7 @@
                 <td>@todo.categoryName</td>
                 <td>@todo.title</td>
                 <td>@todo.body</td>
+                <td>@todo.status</td>
             </tr>
         }
         </tbody>
