@@ -1,4 +1,3 @@
-@* js, cssを受け取れるように引数を追加。渡さなくてもいいようにデフォルト値も設定 *@
 @import controllers.routes
 @(
         title:  String,
@@ -11,7 +10,7 @@
     <head>
         <title>@title</title>
         @css
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/bootstrap/bootstrap.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.css")">
     </head>
     <body>
         @content
