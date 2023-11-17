@@ -1,0 +1,7 @@
+format.numeric=
+constraint.minLength={0}文字以上入力してください
+constraint.required=
+
+error.number=
+error.required=必須入力です
+error.minLength=

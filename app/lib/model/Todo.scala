@@ -6,7 +6,6 @@
 package lib.model
 
 import ixias.model._
-import ixias.util.EnumStatus
 
 import java.time.LocalDateTime
 
@@ -27,10 +26,10 @@ case class Todo(
 //~~~~~~~~~~~~~~~~~~~~~~~~
 object Todo {
 
-  val  Id =         the[Identity[Id]]
-  type Id =         Long @@ Todo
-  type WithNoId   = Entity.WithNoId [Id, Todo]
-  type EmbeddedId = Entity.EmbeddedId[Id, Todo]
+  val  Id: Identity[Id] = the[Identity[Id]]
+  type Id =               Long @@ Todo
+  type WithNoId   =       Entity.WithNoId [Id, Todo]
+  type EmbeddedId =       Entity.EmbeddedId[Id, Todo]
 
 
   // INSERT時のIDがAutoincrementのため,IDなしであることを示すオブジェクトに変換

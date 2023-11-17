@@ -71,7 +71,7 @@ class TodoCategoryRepository[P <: JdbcProfile] (implicit val driver: P)
 }
 
 object TodoCategoryRepository {
-  implicit val mySQLProfile = MySQLProfile
+  implicit val mySQLProfile: MySQLProfile.type = MySQLProfile
 
   def apply(): TodoCategoryRepository[MySQLProfile] = new TodoCategoryRepository()
 }
