@@ -33,10 +33,9 @@ case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
     * Add User Data
    */
   def add(entity: EntityWithNoId): Future[Id] = {
-    val res = RunDBAction(TodoTable) { slick =>
+    RunDBAction(TodoTable) { slick =>
       slick returning slick.map(_.id) += entity.v
     }
-    res
   }
 
   /**
