@@ -15,12 +15,9 @@ import scala.util.{Failure, Success}
 @Singleton
 class TodoController @Inject()(
   val controllerComponents: ControllerComponents,
-)
-  (implicit ex: ExecutionContext) extends BaseController with I18nSupport {
-  implicit val mySQLProfile = MySQLProfile
+)(implicit ex: ExecutionContext) extends BaseController with I18nSupport {
   val todoRepository = TodoRepository()
   val todoCategoryRepository = TodoCategoryRepository()
-
   def list() = Action { implicit request: Request[AnyContent] =>
     val todosFuture = todoRepository.all()
     val categoriesFuture = todoCategoryRepository.all()
@@ -29,8 +26,8 @@ class TodoController @Inject()(
     result.value.get match {
       case Success(value) =>
         val output = value._1.map(todo => {
-          val categoryName = value._2.find(category => category.id.get == todo.categoryId).fold("存在しないカテゴリ")(_.name)
-          ViewValueTodo(todo.id.getOrElse(0), categoryName, todo.title, todo.body)
+          val categoryName = value._2.find(category => category.id == todo.v.categoryId).fold("存在しないカテゴリ")(_.v.name)
+          ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body)
         })
         Ok(views.html.todo.list(output))
       case Failure(_)    =>
