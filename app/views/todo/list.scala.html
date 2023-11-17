@@ -1,0 +1,25 @@
+@import model.ViewValueTodo
+@(todos: Seq[ViewValueTodo])
+
+@main(title = "Todo一覧画面") {
+
+    <table class="table">
+        <thead>
+            <th scope="col">id</th>
+            <th scope="col">カテゴリ</th>
+            <th scope="col">タイトル</th>
+            <th scope="col">本文</th>
+        </thead>
+        <tbody>
+        @for(todo <- todos) {
+            <tr>
+                <th scope="row">@todo.id</th>
+                <td>@todo.categoryName</td>
+                <td>@todo.title</td>
+                <td>@todo.body</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+}

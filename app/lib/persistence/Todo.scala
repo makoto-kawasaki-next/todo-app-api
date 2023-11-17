@@ -1,29 +1,30 @@
 /**
   * This is a sample of Todo Application.
-  * 
+  *
   */
 
 package lib.persistence
 
-import ixias.persistence.SlickRepository
-import lib.model.User
-import slick.jdbc.JdbcProfile
-
 import scala.concurrent.Future
+import ixias.persistence.SlickRepository
+import lib.model.Todo
+import slick.jdbc.{JdbcProfile, MySQLProfile}
 
 // UserRepository: UserTableへのクエリ発行を行うRepository層の定義
-//~~~~~~~~~~~~~~~~~~~~~~
-case class UserRepository[P <: JdbcProfile] (implicit val driver: P)
-  extends SlickRepository[User.Id, User, P]
+//~~~~~~~~
+class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
+  extends SlickRepository[Todo.Id, Todo, P]
   with db.SlickResourceProvider[P] {
 
   import api._
+
+  def all(): Future[Seq[EntityEmbeddedId]] = RunDBAction(TodoTable, "slave")(_.result)
 
   /**
     * Get User Data
     */
   def get(id: Id): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(UserTable, "slave") { _
+    RunDBAction(TodoTable, "slave") { _
       .filter(_.id === id)
       .result.headOption
   }
@@ -32,7 +33,7 @@ case class UserRepository[P <: JdbcProfile] (implicit val driver: P)
     * Add User Data
    */
   def add(entity: EntityWithNoId): Future[Id] = {
-    RunDBAction(UserTable) { slick =>
+    RunDBAction(TodoTable) { slick =>
       slick returning slick.map(_.id) += entity.v
     }
   }
@@ -41,7 +42,7 @@ case class UserRepository[P <: JdbcProfile] (implicit val driver: P)
    * Update User Data
    */
   def update(entity: EntityEmbeddedId): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(UserTable) { slick =>
+    RunDBAction(TodoTable) { slick =>
       val row = slick.filter(_.id === entity.id)
       for {
         old <- row.result.headOption
@@ -56,7 +57,7 @@ case class UserRepository[P <: JdbcProfile] (implicit val driver: P)
    * Delete User Data
    */
   def remove(id: Id): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(UserTable) { slick =>
+    RunDBAction(TodoTable) { slick =>
       val row = slick.filter(_.id === id)
       for {
         old <- row.result.headOption
@@ -66,4 +67,9 @@ case class UserRepository[P <: JdbcProfile] (implicit val driver: P)
         }
       } yield old
     }
+}
+
+object TodoRepository {
+  implicit val mySQLProfile = MySQLProfile
+  def apply(): TodoRepository[MySQLProfile] = new TodoRepository()
 }

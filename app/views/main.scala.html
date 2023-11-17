@@ -1,0 +1,21 @@
+@import controllers.routes
+@(
+        title:  String,
+        script: Html = Html(""),
+        css:    Html = Html(""),
+)(content: Html)
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>@title</title>
+        @css
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.css")">
+    </head>
+    <body>
+        @content
+        <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
+        @* 引数の展開 *@
+        @script
+    </body>
+</html>
