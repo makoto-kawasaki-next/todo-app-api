@@ -32,10 +32,9 @@ case class UserRepository[P <: JdbcProfile] (implicit val driver: P)
     * Add User Data
    */
   def add(entity: EntityWithNoId): Future[Id] = {
-    val res = RunDBAction(UserTable) { slick =>
+    RunDBAction(UserTable) { slick =>
       slick returning slick.map(_.id) += entity.v
     }
-    res
   }
 
   /**

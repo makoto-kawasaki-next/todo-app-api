@@ -14,9 +14,9 @@ import java.time.LocalDateTime
 import lib.model.TodoCategory._
 case class TodoCategory(
   id:        Option[Id],
-  name: String,
-  slug: String,
-  color: Int,
+  name:      String,
+  slug:      String,
+  color:     Int,
   updatedAt: LocalDateTime = NOW,
   createdAt: LocalDateTime = NOW
 ) extends EntityModel[Id]
@@ -25,9 +25,9 @@ case class TodoCategory(
 //~~~~~~~~~~~~~~~~~~~~~~~~
 object TodoCategory {
 
-  val  Id = the[Identity[Id]]
-  type Id = Long @@ TodoCategory
-  type WithNoId = Entity.WithNoId [Id, TodoCategory]
+  val  Id =        the[Identity[Id]]
+  type Id =          Long @@ TodoCategory
+  type WithNoId =   Entity.WithNoId [Id, TodoCategory]
   type EmbeddedId = Entity.EmbeddedId[Id, TodoCategory]
 
 
@@ -36,8 +36,8 @@ object TodoCategory {
     new Entity.WithNoId(
       new TodoCategory(
         id    = None,
-        name = name,
-        slug = slug,
+        name  = name,
+        slug  = slug,
         color = color
       )
     )

@@ -1,44 +1,37 @@
 package controllers.todo
 
-import controllers.form.TodoFormData
-import controllers.output.TodoListOutput
-import lib.model.Todo
-import lib.persistence.{TodoCategoryRepository, TodoRepository}
-import play.api.data.{Form, FormError}
+import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
+import model.ViewValueTodo
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AnyContent, BaseController, ControllerComponents, Request}
-import slick.jdbc.{JdbcProfile, MySQLProfile}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 @Singleton
 class TodoController @Inject()(
   val controllerComponents: ControllerComponents,
-)
-  (implicit ex: ExecutionContext) extends BaseController with I18nSupport {
-  implicit val mySQLProfile = MySQLProfile
-  val todoRepository = TodoRepository()
-  val todoCategoryRepository = TodoCategoryRepository()
-
+)(implicit ex: ExecutionContext) extends BaseController with I18nSupport {
   def list() = Action async { implicit request: Request[AnyContent] =>
-    for {
-      todos <- todoRepository.all()
-      categories <- todoCategoryRepository.all()
-    } yield {
-      val result = todos.map(todo =>
-        {
-          val category = categories.find(_.id.getOrElse(0) == todo.categoryId).get
-          TodoListOutput(todo.id.getOrElse(0), category.name, todo.title, todo.body)
-        }
-      )
-      Ok(views.html.todo.list(result))
+    val todosFuture = TodoRepository.all()
+    val categoriesFuture = TodoCategoryRepository.all()
+    val futures = todosFuture.zip(categoriesFuture)
+    futures.transform {
+      case Success(res) =>
+        val output = res._1.map(todo => {
+          val categoryName = res._2.find(category => category.id == todo.v.categoryId).fold("存在しないカテゴリ")(_.v.name)
+          ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body)
+        })
+        Success(Ok(views.html.todo.list(output)))
+      case Failure(_) => Success(NotFound)
     }
   }
 
   def add() = Action async { implicit request: Request[AnyContent] =>
     for {
-      categories <- todoCategoryRepository.all()
+      categories <- TodoCategoryRepository.all()
     } yield {
       val categoriesForSelect = categories.map(category => (category.id.get.toString, category.name)).toMap
       Ok(views.html.todo.add(TodoFormData.form, categoriesForSelect))
@@ -50,7 +43,7 @@ class TodoController @Inject()(
     TodoFormData.form.bindFromRequest().fold(
       (errorForm: Form[TodoFormData]) => {
         for {
-          categories <- todoCategoryRepository.all()
+          categories <- TodoCategoryRepository.all()
         } yield {
           val categoriesForSelect = categories.map(category => (category.id.get.toString, category.name)).toMap
           BadRequest(views.html.todo.add(errorForm, categoriesForSelect))
@@ -58,7 +51,7 @@ class TodoController @Inject()(
       },
       (form: TodoFormData) => {
         for {
-          _ <- todoRepository.add(Todo(form.categoryId.toLong, form.title, form.body, 0))
+          _ <- TodoRepository.add(Todo(form.categoryId.toLong, form.title, form.body, 0))
         } yield Redirect(routes.TodoController.list())
       }
     )

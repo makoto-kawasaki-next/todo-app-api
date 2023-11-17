@@ -8,17 +8,17 @@ package lib.persistence
 import scala.concurrent.Future
 import ixias.persistence.SlickRepository
 import lib.model.Todo
-import slick.jdbc.JdbcProfile
+import slick.jdbc.{JdbcProfile, MySQLProfile}
 
 // UserRepository: UserTableへのクエリ発行を行うRepository層の定義
 //~~~~~~~~
-case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
+class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
   extends SlickRepository[Todo.Id, Todo, P]
   with db.SlickResourceProvider[P] {
 
   import api._
 
-  def all(): Future[Seq[Todo]] = RunDBAction(TodoTable, "slave")(_.result)
+  def all(): Future[Seq[EntityEmbeddedId]] = RunDBAction(TodoTable, "slave")(_.result)
 
   /**
     * Get User Data
@@ -33,10 +33,9 @@ case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
     * Add User Data
    */
   def add(entity: EntityWithNoId): Future[Id] = {
-    val res = RunDBAction(TodoTable) { slick =>
+    RunDBAction(TodoTable) { slick =>
       slick returning slick.map(_.id) += entity.v
     }
-    res
   }
 
   /**
@@ -68,4 +67,9 @@ case class TodoRepository[P <: JdbcProfile] (implicit val driver: P)
         }
       } yield old
     }
+}
+
+object TodoRepository {
+  implicit val mySQLProfile = MySQLProfile
+  def apply(): TodoRepository[MySQLProfile] = new TodoRepository()
 }

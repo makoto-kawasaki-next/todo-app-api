@@ -14,22 +14,22 @@ import java.time.LocalDateTime
 //~~~~~~~~~~~~~~~~~~~~
 import lib.model.Todo._
 case class Todo(
-  id:        Option[Id],
+  id :        Option[Id],
   categoryId: Long,
-  title: String,
-  body: String,
-  state: Int,
-  updatedAt: LocalDateTime = NOW,
-  createdAt: LocalDateTime = NOW
+  title :     String,
+  body :      String,
+  state :     Int,
+  updatedAt : LocalDateTime = NOW,
+  createdAt : LocalDateTime = NOW
 ) extends EntityModel[Id]
 
 // コンパニオンオブジェクト
 //~~~~~~~~~~~~~~~~~~~~~~~~
 object Todo {
 
-  val  Id = the[Identity[Id]]
-  type Id = Long @@ Todo
-  type WithNoId = Entity.WithNoId [Id, Todo]
+  val  Id =         the[Identity[Id]]
+  type Id =         Long @@ Todo
+  type WithNoId   = Entity.WithNoId [Id, Todo]
   type EmbeddedId = Entity.EmbeddedId[Id, Todo]
 
 
@@ -37,11 +37,11 @@ object Todo {
   def apply(categoryId: Long, title: String, body: String, state: Int): WithNoId = {
     new Entity.WithNoId(
       new Todo(
-        id    = None,
+        id =          None,
         categoryId = categoryId,
-        title = title,
-        body = body,
-        state = state,
+        title =      title,
+        body =       body,
+        state =      state,
       )
     )
   }
