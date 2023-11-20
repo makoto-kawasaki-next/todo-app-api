@@ -1,11 +1,12 @@
 package controllers.todo
 
+import lib.model.Todo.Id
 import lib.model.TodoStatus.BeforeExec
 import lib.model.{Todo, TodoStatus}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
 import model.ViewValueTodo
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText, number}
+import play.api.data.Forms.{mapping, nonEmptyText, number, shortNumber}
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 
@@ -22,7 +23,7 @@ class TodoController @Inject()(
       "categoryId" -> number,
       "title" -> nonEmptyText(minLength = 1),
       "body" -> nonEmptyText(minLength = 1),
-      "state" -> number
+      "state" -> shortNumber
     )(TodoFormData.apply)(TodoFormData.unapply)
   )
   def list(): Action[AnyContent] = Action async {
@@ -77,7 +78,7 @@ class TodoController @Inject()(
       case Success(results) =>
         results._1 match {
           case Some(todo) =>
-            val formData = TodoFormData(todo.v.categoryId.toInt, todo.v.title, todo.v.body, todo.v.state)
+            val formData = TodoFormData(todo.v.categoryId.toInt, todo.v.title, todo.v.body, todo.v.state.code)
             val categories = results._2.map(category => (category.id.toString, category.v.name)).toMap
             val status = TodoStatus.values.map(state => (state.code.toString, state.name)).toMap
             Success(Ok(views.html.todo.edit(id, form.fill(formData), categories, status)))
@@ -91,6 +92,7 @@ class TodoController @Inject()(
     form.bindFromRequest().fold(
       (formWithError: Form[TodoFormData]) => {
         TodoCategoryRepository.all().map { categoriesRes =>
+          println()
           val status: Map[String, String] = TodoStatus.values.map(state => (state.code.toString, state.name)).toMap
           val categories: Map[String, String] = categoriesRes.map(category => (category.id.toString, category.v.name)).toMap
           BadRequest(views.html.todo.edit(id, formWithError, categories, status))
@@ -99,7 +101,7 @@ class TodoController @Inject()(
       (data: TodoFormData) => {
         TodoRepository.get(Id(id)).map {
          case Some(entity) =>
-           val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = data.state))
+           val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = TodoStatus(data.state)))
            TodoRepository.update(target)
            Redirect(routes.TodoController.list())
          case None => NotFound
@@ -108,4 +110,4 @@ class TodoController @Inject()(
     )
   }
 }
-case class TodoFormData(categoryId: Int, title: String, body: String, state: Int)
+case class TodoFormData(categoryId: Int, title: String, body: String, state: Short)
