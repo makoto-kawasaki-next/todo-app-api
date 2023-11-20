@@ -1,7 +1,7 @@
 package controllers.todo
 
-import lib.model.Todo.Id
-import lib.model.{BeforeExec, Todo, TodoStatus}
+import lib.model.TodoStatus.BeforeExec
+import lib.model.{Todo, TodoStatus}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
 import model.ViewValueTodo
 import play.api.data.Form
@@ -33,7 +33,7 @@ class TodoController @Inject()(
       case Success(res) =>
         val output = res._1.map(todo => {
           val categoryName = res._2.find(category => category.id == todo.v.categoryId).fold("存在しないカテゴリ")(_.v.name)
-          ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, TodoStatus.getByCode(todo.v.state).name)
+          ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, todo.v.state.name)
         })
         Success(Ok(views.html.todo.list(output)))
       case Failure(_) => Success(NotFound)
@@ -54,7 +54,6 @@ class TodoController @Inject()(
   def store(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     form.bindFromRequest().fold(
       (errorForm: Form[TodoFormData]) => {
-        println(errorForm)
         for {
           categories <- TodoCategoryRepository.all()
         } yield {
