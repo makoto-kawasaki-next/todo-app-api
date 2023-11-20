@@ -6,6 +6,7 @@
 package lib.model
 
 import ixias.model._
+import ixias.util.EnumStatus
 
 import java.time.LocalDateTime
 
@@ -17,7 +18,7 @@ case class Todo(
   categoryId: Long,
   title :     String,
   body :      String,
-  state :     Int,
+  state :     Short,
   updatedAt : LocalDateTime = NOW,
   createdAt : LocalDateTime = NOW
 ) extends EntityModel[Id]
@@ -46,8 +47,8 @@ object Todo {
   }
 }
 
-sealed class TodoStatus(val code: Int, val name: String)
-object TodoStatus {
+sealed class TodoStatus(val code: Short, val name: String) extends EnumStatus
+object TodoStatus extends EnumStatus.Of[TodoStatus] {
   def getByCode(code: Int): TodoStatus = {
     code match {
       case BeforeExec.code => BeforeExec
@@ -55,7 +56,10 @@ object TodoStatus {
       case Done.code => Done
     }
   }
+
+  case object BeforeExec extends TodoStatus(1, "着手前")
+
+  case object Doing extends TodoStatus(2, "進行中")
+
+  case object Done extends TodoStatus(3, "完了")
 }
-case object BeforeExec extends TodoStatus(1, "着手前")
-case object Doing extends TodoStatus(2, "進行中")
-case object Done extends TodoStatus(3, "完了")
