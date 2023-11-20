@@ -13,7 +13,9 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.css")">
     </head>
     <body>
-        @content
+        <main style="padding: 100px">
+            @content
+        </main>
         <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
         @* 引数の展開 *@
         @script

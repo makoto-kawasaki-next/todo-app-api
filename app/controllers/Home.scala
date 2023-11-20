@@ -14,7 +14,7 @@ import model.ViewValueHome
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
 
-  def index() = Action { implicit req =>
+  def index(): Action[AnyContent] = Action {
     val vv = ViewValueHome(
       title  = "Home",
       cssSrc = Seq("main.css"),

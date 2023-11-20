@@ -7,9 +7,8 @@ package lib.persistence.db
 
 import java.time.LocalDateTime
 import slick.jdbc.JdbcProfile
-import ixias.persistence.model.Table
-
-import lib.model.Todo
+import ixias.persistence.model.{DataSourceName, Table}
+import lib.model.{Todo, TodoStatus}
 
 // UserTable: Userテーブルへのマッピングを行う
 //~~~~~~~~~~~~~~
@@ -19,7 +18,7 @@ case class TodoTable[P <: JdbcProfile]()(implicit val driver: P)
 
   // Definition of DataSourceName
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  lazy val dsn = Map(
+  lazy val dsn: Map[String, DataSourceName] = Map(
     "master" -> DataSourceName("ixias.db.mysql://master/todo"),
     "slave"  -> DataSourceName("ixias.db.mysql://slave/todo")
   )
@@ -39,13 +38,13 @@ case class TodoTable[P <: JdbcProfile]()(implicit val driver: P)
     /* @3 */ def title       = column[String]         ("title",        O.Utf8Char255)
     /* @4 */ def body     = column[String]        ("body",      O.Text)
 
-    /* @5 */ def state = column[Int]("state", O.UInt64)
+    /* @5 */ def state = column[TodoStatus]("state", O.UInt64)
 
     /* @6 */ def updatedAt = column[LocalDateTime] ("updated_at", O.TsCurrent)
     /* @7 */ def createdAt = column[LocalDateTime] ("created_at", O.Ts)
 
     type TableElementTuple = (
-      Option[Id], Long, String, String, Int, LocalDateTime, LocalDateTime
+      Option[Id], Long, String, String, TodoStatus, LocalDateTime, LocalDateTime
     )
 
     // DB <=> Scala の相互のmapping定義

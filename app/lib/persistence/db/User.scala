@@ -7,8 +7,7 @@ package lib.persistence.db
 
 import java.time.LocalDateTime
 import slick.jdbc.JdbcProfile
-import ixias.persistence.model.Table
-
+import ixias.persistence.model.{DataSourceName, Table}
 import lib.model.User
 
 // UserTable: Userテーブルへのマッピングを行う
@@ -19,7 +18,7 @@ case class UserTable[P <: JdbcProfile]()(implicit val driver: P)
 
   // Definition of DataSourceName
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  lazy val dsn = Map(
+  lazy val dsn: Map[String, DataSourceName] = Map(
     "master" -> DataSourceName("ixias.db.mysql://master/user"),
     "slave"  -> DataSourceName("ixias.db.mysql://slave/user")
   )

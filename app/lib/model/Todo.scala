@@ -18,7 +18,7 @@ case class Todo(
   categoryId: Long,
   title :     String,
   body :      String,
-  state :     Int,
+  state :     TodoStatus,
   updatedAt : LocalDateTime = NOW,
   createdAt : LocalDateTime = NOW
 ) extends EntityModel[Id]
@@ -34,7 +34,7 @@ object Todo {
 
 
   // INSERT時のIDがAutoincrementのため,IDなしであることを示すオブジェクトに変換
-  def apply(categoryId: Long, title: String, body: String, state: Int): WithNoId = {
+  def apply(categoryId: Long, title: String, body: String, state: TodoStatus): WithNoId = {
     new Entity.WithNoId(
       new Todo(
         id =          None,
@@ -45,4 +45,11 @@ object Todo {
       )
     )
   }
+}
+
+sealed class TodoStatus(val code: Short, val name: String) extends EnumStatus
+object TodoStatus extends EnumStatus.Of[TodoStatus] {
+  case object BeforeExec extends TodoStatus(1, "着手前")
+  case object Doing extends TodoStatus(2, "進行中")
+  case object Done extends TodoStatus(3, "完了")
 }

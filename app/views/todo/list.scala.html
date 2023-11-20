@@ -2,13 +2,14 @@
 @(todos: Seq[ViewValueTodo])
 
 @main(title = "Todo一覧画面") {
-
+    <a style="padding: 10px" href="@controllers.todo.routes.TodoController.add()"><button type="button" class="btn btn-outline-primary">追加</button></a>
     <table class="table">
         <thead>
             <th scope="col">id</th>
             <th scope="col">カテゴリ</th>
             <th scope="col">タイトル</th>
             <th scope="col">本文</th>
+            <th scope="col">ステータス</th>
         </thead>
         <tbody>
         @for(todo <- todos) {
@@ -17,6 +18,7 @@
                 <td>@todo.categoryName</td>
                 <td>@todo.title</td>
                 <td>@todo.body</td>
+                <td>@todo.status</td>
             </tr>
         }
         </tbody>
