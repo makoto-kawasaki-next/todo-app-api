@@ -8,7 +8,7 @@ package lib.persistence.db
 import java.time.LocalDateTime
 import slick.jdbc.JdbcProfile
 import ixias.persistence.model.{DataSourceName, Table}
-import lib.model.{Todo, TodoStatus}
+import lib.model.{Todo, TodoCategory, TodoStatus}
 
 // UserTable: Userテーブルへのマッピングを行う
 //~~~~~~~~~~~~~~
@@ -34,7 +34,7 @@ case class TodoTable[P <: JdbcProfile]()(implicit val driver: P)
     import Todo._
     // Columns
     /* @1 */ def id        = column[Id]            ("id",         O.UInt64, O.PrimaryKey, O.AutoInc)
-    /* @2 */ def categoryId = column[Long]        ("category_id",       O.UInt64)
+    /* @2 */ def categoryId = column[TodoCategory.Id]        ("category_id",       O.UInt64)
     /* @3 */ def title       = column[String]         ("title",        O.Utf8Char255)
     /* @4 */ def body     = column[String]        ("body",      O.Text)
 
@@ -44,7 +44,7 @@ case class TodoTable[P <: JdbcProfile]()(implicit val driver: P)
     /* @7 */ def createdAt = column[LocalDateTime] ("created_at", O.Ts)
 
     type TableElementTuple = (
-      Option[Id], Long, String, String, TodoStatus, LocalDateTime, LocalDateTime
+      Option[Id], TodoCategory.Id, String, String, TodoStatus, LocalDateTime, LocalDateTime
     )
 
     // DB <=> Scala の相互のmapping定義

@@ -2,11 +2,11 @@ package controllers.todo
 
 import lib.model.Todo.Id
 import lib.model.TodoStatus.BeforeExec
-import lib.model.{Todo, TodoStatus}
+import lib.model.{Todo, TodoCategory, TodoStatus}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
 import model.ViewValueTodo
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText, number, shortNumber}
+import play.api.data.Forms.{longNumber, mapping, nonEmptyText, number, shortNumber}
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 
@@ -20,7 +20,7 @@ class TodoController @Inject()(
 )(implicit ex: ExecutionContext) extends BaseController with I18nSupport {
   val form: Form[TodoFormData] = Form(
     mapping(
-      "categoryId" -> number,
+      "categoryId" -> longNumber,
       "title" -> nonEmptyText(minLength = 1),
       "body" -> nonEmptyText(minLength = 1),
       "state" -> shortNumber
@@ -64,7 +64,7 @@ class TodoController @Inject()(
       },
       (form: TodoFormData) => {
         for {
-          _ <- TodoRepository.add(Todo(form.categoryId.toLong, form.title, form.body, BeforeExec))
+          _ <- TodoRepository.add(Todo(TodoCategory.Id(form.categoryId), form.title, form.body, BeforeExec))
         } yield Redirect(routes.TodoController.list())
       }
     )
@@ -101,7 +101,7 @@ class TodoController @Inject()(
       (data: TodoFormData) => {
         TodoRepository.get(Id(id)).map {
          case Some(entity) =>
-           val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = TodoStatus(data.state)))
+           val target = entity.map(_.copy(categoryId = TodoCategory.Id(data.categoryId), title = data.title, body = data.body, state = TodoStatus(data.state)))
            TodoRepository.update(target)
            Redirect(routes.TodoController.list())
          case None => NotFound
@@ -110,4 +110,4 @@ class TodoController @Inject()(
     )
   }
 }
-case class TodoFormData(categoryId: Int, title: String, body: String, state: Short)
+case class TodoFormData(categoryId: Long, title: String, body: String, state: Short)
