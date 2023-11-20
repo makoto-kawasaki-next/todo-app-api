@@ -32,7 +32,7 @@ class TodoController @Inject()(
       case Success(res) =>
         val output = res._1.map(todo => {
           val categoryName = res._2.find(category => category.id == todo.v.categoryId).fold("存在しないカテゴリ")(_.v.name)
-          ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, TodoStatus(todo.v.state).name)
+          ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, todo.v.state.name)
         })
         Success(Ok(views.html.todo.list(output)))
       case Failure(_) => Success(NotFound)
@@ -53,6 +53,7 @@ class TodoController @Inject()(
   def store(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     form.bindFromRequest().fold(
       (errorForm: Form[TodoFormData]) => {
+        println(errorForm)
         for {
           categories <- TodoCategoryRepository.all()
         } yield {

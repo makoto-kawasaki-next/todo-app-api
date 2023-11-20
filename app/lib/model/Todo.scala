@@ -18,7 +18,7 @@ case class Todo(
   categoryId: Long,
   title :     String,
   body :      String,
-  state :     Short,
+  state :     TodoStatus,
   updatedAt : LocalDateTime = NOW,
   createdAt : LocalDateTime = NOW
 ) extends EntityModel[Id]
@@ -27,10 +27,10 @@ case class Todo(
 //~~~~~~~~~~~~~~~~~~~~~~~~
 object Todo {
 
-  val  Id: Identity[Id] = the[Identity[Id]]
-  type Id =               Long @@ Todo
-  type WithNoId   =       Entity.WithNoId [Id, Todo]
-  type EmbeddedId =       Entity.EmbeddedId[Id, Todo]
+  val  Id =         the[Identity[Id]]
+  type Id =         Long @@ Todo
+  type WithNoId   = Entity.WithNoId [Id, Todo]
+  type EmbeddedId = Entity.EmbeddedId[Id, Todo]
 
 
   // INSERT時のIDがAutoincrementのため,IDなしであることを示すオブジェクトに変換
@@ -41,7 +41,7 @@ object Todo {
         categoryId = categoryId,
         title =      title,
         body =       body,
-        state =      state.code,
+        state =      state,
       )
     )
   }
@@ -49,17 +49,7 @@ object Todo {
 
 sealed class TodoStatus(val code: Short, val name: String) extends EnumStatus
 object TodoStatus extends EnumStatus.Of[TodoStatus] {
-  def getByCode(code: Int): TodoStatus = {
-    code match {
-      case BeforeExec.code => BeforeExec
-      case Doing.code => Doing
-      case Done.code => Done
-    }
-  }
-
   case object BeforeExec extends TodoStatus(1, "着手前")
-
   case object Doing extends TodoStatus(2, "進行中")
-
   case object Done extends TodoStatus(3, "完了")
 }
