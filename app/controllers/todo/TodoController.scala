@@ -1,15 +1,18 @@
 package controllers.todo
 
+import lib.model.Todo.Id
 import lib.model.{BeforeExec, Todo, TodoStatus}
+import lib.persistence.db.TodoTable
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
 import model.ViewValueTodo
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText, number}
 import play.api.i18n.I18nSupport
+import play.api.libs.typedmap.TypedKey
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Singleton
@@ -20,7 +23,8 @@ class TodoController @Inject()(
     mapping(
       "categoryId" -> number,
       "title" -> nonEmptyText(minLength = 1),
-      "body" -> nonEmptyText(minLength = 1)
+      "body" -> nonEmptyText(minLength = 1),
+      "state" -> number
     )(TodoFormData.apply)(TodoFormData.unapply)
   )
   def list(): Action[AnyContent] = Action async {
@@ -52,6 +56,7 @@ class TodoController @Inject()(
   def store(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     form.bindFromRequest().fold(
       (errorForm: Form[TodoFormData]) => {
+        println(errorForm)
         for {
           categories <- TodoCategoryRepository.all()
         } yield {
@@ -66,5 +71,38 @@ class TodoController @Inject()(
       }
     )
   }
+
+  def edit(id: Long): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
+    TodoCategoryRepository.all().map {categoriesRes =>
+      val status: Map[String, String] = TodoStatus.values.map(state => (state.code.toString , state.name)).toMap
+      val categories: Map[String, String] = categoriesRes.map(category => (category.id.toString, category.v.name)).toMap
+      // ここでエラーが起こる。IDの生成方法がよろしくないのか？
+      val todo = TodoRepository.get(Id(id))
+      Ok(views.html.todo.edit(id, form, categories, status))
+    }
+  }
+
+  def update(id: Long): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+//    form.bindFromRequest().fold(
+//      (formWithError: Form[TodoFormData]) => {
+//        TodoCategoryRepository.all().map { categoriesRes =>
+//          val status: Map[String, String] = TodoStatus.values.map(state => (state.code.toString, state.name)).toMap
+//          val categories: Map[String, String] = categoriesRes.map(category => (category.id.toString, category.v.name)).toMap
+//          BadRequest(views.html.todo.edit(id, formWithError, categories, status))
+//        }
+//      },
+//      (data: TodoFormData) => {
+//        val todoId = TypedKey[Todo](id)
+//        TodoRepository.get(todoId).map {
+//         case Some(entity) =>
+//           val target = entity.v.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = data.state)
+//           TodoRepository.update(target.toEmbeddedId)
+//           Redirect(routes.TodoController.list())
+//         case None => NotFound
+//        }
+//      }
+//    )
+    Redirect(routes.TodoController.list())
+  }
 }
-case class TodoFormData(categoryId: Int, title: String, body: String)
+case class TodoFormData(categoryId: Int, title: String, body: String, state: Int)

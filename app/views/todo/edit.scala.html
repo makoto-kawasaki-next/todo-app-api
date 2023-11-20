@@ -1,14 +1,14 @@
 @import controllers.todo.TodoFormData
-@import lib.model.BeforeExec
-@(form: Form[TodoFormData], categories: Map[String,String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
-@main(title = "Todo登録画面") {
+@(id: Long, form: Form[TodoFormData], categories: Map[String,String], status: Map[String, String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
+
+@main(title = "編集画面") {
     @helper.form(action = controllers.todo.routes.TodoController.store()) {
         @helper.CSRF.formField
         @helper.select(form("categoryId"), options = helper.options(categories), args = '_default -> "選択してください", '_label -> "タイトル")
         @helper.inputText(form("title"), '_label -> "タイトル")
         @helper.inputText(form("body"), '_label -> "本文")
-        <input type="hidden" name="state" value="@BeforeExec.code">
+        @helper.select(form("state"), options = helper.options(status), args = '_default -> "選択してください", '_label -> "ステータス")
         <input type="submit" class="btn btn-primary" value="登録">
     }
 }

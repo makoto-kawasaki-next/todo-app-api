@@ -55,6 +55,8 @@ object TodoStatus {
       case Done.code => Done
     }
   }
+
+  def values: Seq[TodoStatus] = Seq(BeforeExec, Doing, Done)
 }
 case object BeforeExec extends TodoStatus(1, "着手前")
 case object Doing extends TodoStatus(2, "進行中")
