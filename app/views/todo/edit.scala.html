@@ -3,7 +3,7 @@
 @(id: Long, form: Form[TodoFormData], categories: Map[String,String], status: Map[String, String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = "編集画面") {
-    @helper.form(action = controllers.todo.routes.TodoController.store()) {
+    @helper.form(action = controllers.todo.routes.TodoController.update(id)) {
         @helper.CSRF.formField
         @helper.select(form("categoryId"), options = helper.options(categories), args = '_default -> "選択してください", '_label -> "タイトル")
         @helper.inputText(form("title"), '_label -> "タイトル")
