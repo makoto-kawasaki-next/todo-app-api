@@ -1,6 +1,6 @@
 @import model.ViewValueTodo
 @(todos: Seq[ViewValueTodo])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader, flash: Flash)
-@println(flash.get("successMessage"))
+
 @main(title = "Todo一覧画面") {
     @flash.get("successMessage").map { message => <div class="alert alert-primary" role="alert">@message</div> }
     @flash.get("errorMessage").map { message => <div class="alert alert-danger" role="alert">@message</div> }
