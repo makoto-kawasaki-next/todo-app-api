@@ -81,25 +81,17 @@ class TodoController @Inject()(
     }
   }
 
-  def update(id: Long): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
-    form.bindFromRequest().fold(
-      (formWithError: Form[TodoFormData]) => {
-        TodoCategoryRepository.all().map { categoriesRes =>
-          val status: Map[String, String] = TodoStatus.values.map(state => (state.code.toString, state.name)).toMap
-          val categories: Map[String, String] = categoriesRes.map(category => (category.id.toString, category.v.name)).toMap
-          BadRequest(views.html.todo.edit(id, formWithError, categories, status))
-        }
-      },
-      (data: TodoFormData) => {
-        TodoRepository.get(Id(id)).map {
-         case Some(entity) =>
-           val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = data.state))
-           TodoRepository.update(target)
-           Redirect(routes.TodoController.list())
-         case None => NotFound
-        }
-      }
-    )
+  private def errorUpdate(formWithError: Form[TodoFormData]): Result = Redirect(routes.TodoController.list())
+
+  def update(id: Long): Action[TodoFormData] = Action(parse.form(form, onErrors = errorUpdate)) async { implicit request =>
+    val data = request.body
+    TodoRepository.get(Id(id)).map {
+      case Some(entity) =>
+        val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = data.state))
+        TodoRepository.update(target)
+        Redirect(routes.TodoController.list())
+      case None => NotFound
+    }
   }
 }
 
