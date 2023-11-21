@@ -49,7 +49,7 @@ object Todo {
 
 sealed class TodoStatus(val code: Short, val name: String) extends EnumStatus
 object TodoStatus extends EnumStatus.Of[TodoStatus] {
-  case object BeforeExec extends TodoStatus(1, "着手前")
-  case object Doing extends TodoStatus(2, "進行中")
-  case object Done extends TodoStatus(3, "完了")
+  case object BeforeExec extends TodoStatus(0, "着手前")
+  case object Doing extends TodoStatus(1, "進行中")
+  case object Done extends TodoStatus(2, "完了")
 }

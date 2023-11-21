@@ -26,7 +26,7 @@ class TodoController @Inject()(
       "state" -> shortNumber
     )(TodoFormData.apply)(TodoFormData.unapply)
   )
-  def list(): Action[AnyContent] = Action async {
+  def list(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     val todosFuture = TodoRepository.all()
     val categoriesFuture = TodoCategoryRepository.all()
     val futures = todosFuture.zip(categoriesFuture)
@@ -108,6 +108,18 @@ class TodoController @Inject()(
         }
       }
     )
+  }
+  def delete(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
+    request.body.asFormUrlEncoded.get("id").headOption match {
+      case None => Future.successful(NotFound)
+      case Some(id) =>
+        TodoRepository.remove(Id(id.toLong)).map(opt =>
+          opt match {
+            case Some(_) => Redirect(routes.TodoController.list())
+            case None => NotFound
+          }
+        )
+    }
   }
 }
 case class TodoFormData(categoryId: Long, title: String, body: String, state: Short)

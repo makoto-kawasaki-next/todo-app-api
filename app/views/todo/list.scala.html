@@ -1,5 +1,5 @@
 @import model.ViewValueTodo
-@(todos: Seq[ViewValueTodo])
+@(todos: Seq[ViewValueTodo])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = "Todo一覧画面") {
     <a style="padding: 10px" href="@controllers.todo.routes.TodoController.add()"><button type="button" class="btn btn-outline-primary">追加</button></a>
@@ -10,20 +10,29 @@
             <th scope="col">タイトル</th>
             <th scope="col">本文</th>
             <th scope="col">ステータス</th>
+            <th scope="col"></th>
         </thead>
         <tbody>
         @for(todo <- todos) {
 
             <tr>
-                <th scope="row">
-                    <a href="@controllers.todo.routes.TodoController.edit(todo.id)">
-                    @todo.id
-                    </a>
-                </th>
+                <th scope="row">@todo.id</th>
                 <td>@todo.categoryName</td>
                 <td>@todo.title</td>
                 <td>@todo.body</td>
                 <td>@todo.status</td>
+                <td>
+                    <a href="@controllers.todo.routes.TodoController.edit(todo.id)">
+                        <i class="far fa-edit"></i>
+                    </a>
+                    <a>
+                    @helper.form(action = controllers.todo.routes.TodoController.delete()) {
+                        @helper.CSRF.formField
+                        <input type="hidden" value="@todo.id" name="id">
+                        <button type="submit" style="padding: 0" class="btn btn-link"> <i class="fas fa-trash-alt"></i></button>
+                    }
+                    </a>
+                </td>
             </tr>
         }
         </tbody>
