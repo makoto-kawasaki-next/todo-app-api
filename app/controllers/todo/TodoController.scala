@@ -1,13 +1,14 @@
 package controllers.todo
 
+import lib.model.Todo.Id
 import lib.model.TodoStatus.BeforeExec
-import lib.model.{Todo, TodoStatus}
+import lib.model.{Todo, TodoCategory, TodoStatus}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
-import model.ViewValueTodo
+import model.TodoFormData.form
+import model.{TodoFormData, ViewValueTodo}
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText, number}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
+import play.api.mvc._
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -17,13 +18,7 @@ import scala.util.{Failure, Success}
 class TodoController @Inject()(
   val controllerComponents: ControllerComponents,
 )(implicit ex: ExecutionContext) extends BaseController with I18nSupport {
-  val form: Form[TodoFormData] = Form(
-    mapping(
-      "categoryId" -> number,
-      "title" -> nonEmptyText(minLength = 1),
-      "body" -> nonEmptyText(minLength = 1)
-    )(TodoFormData.apply)(TodoFormData.unapply)
-  )
+
   def list(): Action[AnyContent] = Action async {
     val todosFuture = TodoRepository.all()
     val categoriesFuture = TodoCategoryRepository.all()
@@ -53,7 +48,6 @@ class TodoController @Inject()(
   def store(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     form.bindFromRequest().fold(
       (errorForm: Form[TodoFormData]) => {
-        println(errorForm)
         for {
           categories <- TodoCategoryRepository.all()
         } yield {
@@ -63,10 +57,41 @@ class TodoController @Inject()(
       },
       (form: TodoFormData) => {
         for {
-          _ <- TodoRepository.add(Todo(form.categoryId.toLong, form.title, form.body, BeforeExec))
+          _ <- TodoRepository.add(Todo(TodoCategory.Id(form.categoryId), form.title, form.body, form.state))
         } yield Redirect(routes.TodoController.list())
       }
     )
   }
+
+  def edit(id: Long): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
+
+    val categories = TodoCategoryRepository.all()
+    val todo = TodoRepository.get(Id(id))
+    todo.zip(categories).transform {
+      case Success(results) =>
+        results._1 match {
+          case Some(todo) =>
+            val formData = TodoFormData(todo.v.categoryId, todo.v.title, todo.v.body, todo.v.state)
+            val categories = results._2.map(category => (category.id.toString, category.v.name)).toMap
+            val status = TodoStatus.values.map(state => (state.code.toString, state.name)).toMap
+            Success(Ok(views.html.todo.edit(id, form.fill(formData), categories, status)))
+          case None => Success(NotFound)
+        }
+      case Failure(exception) => Success(NotFound)
+    }
+  }
+
+  private def errorUpdate(formWithError: Form[TodoFormData]): Result = Redirect(routes.TodoController.list())
+
+  def update(id: Long): Action[TodoFormData] = Action(parse.form(form, onErrors = errorUpdate)) async { implicit request =>
+    val data = request.body
+    TodoRepository.get(Id(id)).map {
+      case Some(entity) =>
+        val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = data.state))
+        TodoRepository.update(target)
+        Redirect(routes.TodoController.list())
+      case None => NotFound
+    }
+  }
 }
-case class TodoFormData(categoryId: Int, title: String, body: String)
+

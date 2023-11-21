@@ -13,8 +13,13 @@
         </thead>
         <tbody>
         @for(todo <- todos) {
+
             <tr>
-                <th scope="row">@todo.id</th>
+                <th scope="row">
+                    <a href="@controllers.todo.routes.TodoController.edit(todo.id)">
+                    @todo.id
+                    </a>
+                </th>
                 <td>@todo.categoryName</td>
                 <td>@todo.title</td>
                 <td>@todo.body</td>
