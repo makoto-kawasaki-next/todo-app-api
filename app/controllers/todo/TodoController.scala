@@ -11,7 +11,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Singleton
@@ -92,7 +92,6 @@ class TodoController @Inject()(
     form.bindFromRequest().fold(
       (formWithError: Form[TodoFormData]) => {
         TodoCategoryRepository.all().map { categoriesRes =>
-          println()
           val status: Map[String, String] = TodoStatus.values.map(state => (state.code.toString, state.name)).toMap
           val categories: Map[String, String] = categoriesRes.map(category => (category.id.toString, category.v.name)).toMap
           BadRequest(views.html.todo.edit(id, formWithError, categories, status))
@@ -103,8 +102,9 @@ class TodoController @Inject()(
          case Some(entity) =>
            val target = entity.map(_.copy(categoryId = TodoCategory.Id(data.categoryId), title = data.title, body = data.body, state = TodoStatus(data.state)))
            TodoRepository.update(target)
-           Redirect(routes.TodoController.list())
-         case None => NotFound
+           Redirect(routes.TodoController.list()).flashing("successMessage" -> "更新に成功しました")
+         case None =>
+           Redirect(routes.TodoController.list()).flashing("errorMessage" -> "更新に失敗しました")
         }
       }
     )
@@ -115,8 +115,8 @@ class TodoController @Inject()(
       case Some(id) =>
         TodoRepository.remove(Id(id.toLong)).map(opt =>
           opt match {
-            case Some(_) => Redirect(routes.TodoController.list())
-            case None => NotFound
+            case Some(_) => Redirect(routes.TodoController.list()).flashing("successMessage" -> "削除に成功しました")
+            case None =>    Redirect(routes.TodoController.list()).flashing("errorMessage" -> "削除に失敗しました")
           }
         )
     }
