@@ -1,5 +1,5 @@
-@import controllers.todo.TodoFormData
 @import lib.model.TodoStatus.BeforeExec
+@import model.TodoFormData
 @(form: Form[TodoFormData], categories: Map[String,String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = "Todo登録画面") {

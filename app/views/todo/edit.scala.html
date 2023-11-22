@@ -1,12 +1,10 @@
-@import controllers.todo.TodoFormData
-
+@import model.TodoFormData
 @(id: Long, form: Form[TodoFormData], categories: Map[String,String], status: Map[String, String])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader, flash: Flash)
-
 @main(title = "編集画面") {
     @flash.get("errorMessage").map {message => <div class="alert alert-danger">@message</div>}
     @helper.form(action = controllers.todo.routes.TodoController.update(id)) {
         @helper.CSRF.formField
-        @helper.select(form("categoryId"), options = helper.options(categories), args = '_default -> "選択してください", '_label -> "タイトル")
+        @helper.select(form("categoryId"), options = helper.options(categories), args = '_default -> "選択してください", '_label -> "カテゴリ")
         @helper.inputText(form("title"), '_label -> "タイトル")
         @helper.inputText(form("body"), '_label -> "本文")
         @helper.select(form("state"), options = helper.options(status), args = '_default -> "選択してください", '_label -> "ステータス")
