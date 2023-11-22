@@ -2,6 +2,11 @@ format.numeric=
 constraint.minLength={0}文字以上入力してください
 constraint.required=
 
+success.update.todo=更新に成功しました
+success.delete.todo=削除に成功しました
+failure.update.todo=更新に失敗しました
+failure.delete.todo=削除に失敗しました
+
 error.number=
 error.required=必須入力です
 error.minLength=

@@ -1,11 +1,12 @@
 package controllers.todo
 
 import lib.model.Todo.Id
-import lib.model.{TodoCategory, TodoStatus}
+import lib.model.{Todo, TodoCategory, TodoStatus}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
-import model.ViewValueTodo
+import model.TodoFormData.form
+import model.{TodoFormData, ViewValueTodo}
 import play.api.data.Form
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc._
 
 import javax.inject.{Inject, Singleton}
@@ -15,9 +16,9 @@ import scala.util.{Failure, Success}
 @Singleton
 class TodoController @Inject()(
   val controllerComponents: ControllerComponents,
+  implicit val messageApi: MessagesApi
 )(implicit ex: ExecutionContext) extends BaseController with I18nSupport {
-
-  def list(): Action[AnyContent] = Action async {
+  def list(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     val todosFuture = TodoRepository.all()
     val categoriesFuture = TodoCategoryRepository.all()
     val futures = todosFuture.zip(categoriesFuture)
@@ -87,8 +88,8 @@ class TodoController @Inject()(
       case Some(entity) =>
         val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = data.state))
         TodoRepository.update(target)
-        Redirect(routes.TodoController.list()).flashing("successMessage" -> "更新に成功しました")
-      case None => Redirect(routes.TodoController.list()).flashing("errorMessage" -> "更新に失敗しました")
+        Redirect(routes.TodoController.list()).flashing("successMessage" -> "success.update.todo")
+      case None => Redirect(routes.TodoController.list()).flashing("errorMessage" -> "failure.update.todo")
     }
   }
 
@@ -96,12 +97,10 @@ class TodoController @Inject()(
     request.body.asFormUrlEncoded.get("id").headOption match {
       case None => Future.successful(NotFound)
       case Some(id) =>
-        TodoRepository.remove(Id(id.toLong)).map(opt =>
-          opt match {
-            case Some(_) => Redirect(routes.TodoController.list()).flashing("successMessage" -> "削除に成功しました")
-            case None => Redirect(routes.TodoController.list()).flashing("errorMessage" -> "削除に失敗しました")
-          }
-        )
+        TodoRepository.remove(Id(id.toLong)).map {
+          case Some(_) => Redirect(routes.TodoController.list()).flashing("successMessage" -> "success.delete.todo")
+          case None => Redirect(routes.TodoController.list()).flashing("errorMessage" -> "failure.delete.todo")
+        }
     }
   }
 }

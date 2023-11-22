@@ -1,9 +1,9 @@
 @import model.ViewValueTodo
-@(todos: Seq[ViewValueTodo])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader, flash: Flash)
+@(todos: Seq[ViewValueTodo])(implicit messagesProvider: MessagesProvider, requestHeader: RequestHeader, flash: Flash, messages: Messages)
 
 @main(title = "Todo一覧画面") {
-    @flash.get("successMessage").map { message => <div class="alert alert-primary" role="alert">@message</div> }
-    @flash.get("errorMessage").map { message => <div class="alert alert-danger" role="alert">@message</div> }
+    @flash.get("successMessage").map { message => <div class="alert alert-primary" role="alert">@Messages(message)</div> }
+    @flash.get("errorMessage").map { message => <div class="alert alert-danger" role="alert">@Messages(message)</div> }
     <a style="padding: 10px" href="@controllers.todo.routes.TodoController.add()"><button type="button" class="btn btn-outline-primary">追加</button></a>
     <table class="table">
         <thead>
