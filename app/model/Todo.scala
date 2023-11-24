@@ -3,8 +3,14 @@ package model
 import lib.model.{TodoCategory, TodoStatus}
 import play.api.data.Form
 import play.api.data.Forms.{longNumber, mapping, nonEmptyText, shortNumber}
+import play.api.libs.json.{Json, Writes}
+
 
 case class ViewValueTodo(id: Long, categoryName: String, title: String, body: String, status: String)
+
+object ViewValueTodo {
+  implicit val writes: Writes[ViewValueTodo] = Json.writes[ViewValueTodo]
+}
 
 case class TodoFormData(categoryId: TodoCategory.Id, title: String, body: String, state: TodoStatus)
 object TodoFormData {

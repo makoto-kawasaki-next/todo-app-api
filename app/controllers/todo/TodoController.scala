@@ -7,6 +7,7 @@ import model.TodoFormData.form
 import model.{TodoFormData, ViewValueTodo}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc._
 
 import javax.inject.{Inject, Singleton}
@@ -28,7 +29,8 @@ class TodoController @Inject()(
           val categoryName = res._2.find(category => category.id == todo.v.categoryId).fold("存在しないカテゴリ")(_.v.name)
           ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, todo.v.state.name)
         })
-        Success(Ok(views.html.todo.list(output)))
+
+        Success(Ok(Json.toJson(output)))
       case Failure(_) => Success(NotFound)
     }
   }
