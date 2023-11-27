@@ -57,7 +57,7 @@ class TodoController @Inject()(
       },
       (form: TodoFormData) => {
         for {
-          _ <- TodoRepository.add(Todo(TodoCategory.Id(form.categoryCode), form.title, form.body, form.state))
+          _ <- TodoRepository.add(Todo(TodoCategory.Id(form.categoryId), form.title, form.body, form.state))
         } yield Redirect(routes.TodoController.list())
       }
     )
@@ -87,7 +87,7 @@ class TodoController @Inject()(
     val data = request.body
     TodoRepository.get(Id(id)).map {
       case Some(entity) =>
-        val target = entity.map(_.copy(categoryId = data.categoryCode, title = data.title, body = data.body, state = data.state))
+        val target = entity.map(_.copy(categoryId = data.categoryId, title = data.title, body = data.body, state = data.state))
         TodoRepository.update(target)
         Redirect(routes.TodoController.list()).flashing("successMessage" -> "success.update.todo")
       case None => Redirect(routes.TodoController.list()).flashing("errorMessage" -> "failure.update.todo")

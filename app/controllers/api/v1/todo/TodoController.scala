@@ -52,7 +52,7 @@ class TodoController @Inject()(
       },
       (form: TodoFormData) => {
         for {
-          _ <- TodoRepository.add(Todo(TodoCategory.Id(form.categoryCode), form.title, form.body, BeforeExec))
+          _ <- TodoRepository.add(Todo(TodoCategory.Id(form.categoryId), form.title, form.body, BeforeExec))
         } yield Ok(Json.toJson("成功しました"))
       }
     )
@@ -80,7 +80,7 @@ class TodoController @Inject()(
       (form: TodoFormData) => {
         TodoRepository.get(Id(id)).map {
           case Some(entity) =>
-            val target = entity.map(_.copy(categoryId = form.categoryCode, title = form.title, body = form.body, state = form.state))
+            val target = entity.map(_.copy(categoryId = form.categoryId, title = form.title, body = form.body, state = form.state))
             TodoRepository.update(target)
             Ok
           case None => NotFound(Json.toJson("データがありませんでした"))
