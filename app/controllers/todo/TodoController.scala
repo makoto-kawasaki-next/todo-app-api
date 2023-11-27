@@ -30,7 +30,7 @@ class TodoController @Inject()(
           ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, todo.v.state.name)
         })
 
-        Success(Ok(Json.toJson(output)))
+        Success(Ok(views.html.todo.list(output)))
       case Failure(_) => Success(NotFound)
     }
   }
