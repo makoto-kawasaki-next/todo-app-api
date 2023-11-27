@@ -5,7 +5,7 @@
 @main(title = "Todo登録画面") {
     @helper.form(action = controllers.todo.routes.TodoController.store()) {
         @helper.CSRF.formField
-        @helper.select(form("categoryId"), options = helper.options(categories), args = '_default -> "選択してください", '_label -> "タイトル")
+        @helper.select(form("categoryCode"), options = helper.options(categories), args = '_default -> "選択してください", '_label -> "タイトル")
         @helper.inputText(form("title"), '_label -> "タイトル")
         @helper.inputText(form("body"), '_label -> "本文")
         <input type="hidden" name="state" value="@BeforeExec.code">
