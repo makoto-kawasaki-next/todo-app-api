@@ -5,12 +5,13 @@ import play.api.data.Form
 import play.api.data.Forms.{longNumber, mapping, nonEmptyText, shortNumber}
 import play.api.libs.json.{Json, Writes}
 
+case class JsValueTodo(id: Long, categoryName: String, title: String, body: String, state: String)
 
-case class ViewValueTodo(id: Long, categoryName: String, title: String, body: String, status: String)
-
-object ViewValueTodo {
-  implicit val writes: Writes[ViewValueTodo] = Json.writes[ViewValueTodo]
+object JsValueTodo {
+  implicit val writes: Writes[JsValueTodo] = Json.writes[JsValueTodo]
 }
+
+case class ViewValueTodo(id: Long, categoryName: String, title: String, body: String, state: String)
 
 case class TodoFormData(categoryId: TodoCategory.Id, title: String, body: String, state: TodoStatus)
 object TodoFormData {

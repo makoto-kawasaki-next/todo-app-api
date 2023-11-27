@@ -1,18 +1,17 @@
 package controllers.api.v1.todo
 
-import lib.model.Todo.Id
 import lib.model.TodoStatus.BeforeExec
-import lib.model.{Todo, TodoCategory, TodoStatus}
+import lib.model.{Todo, TodoCategory}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
 import model.TodoFormData.form
-import model.{TodoFormData, ViewValueTodo}
+import model.{JsValueTodo, TodoFormData}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 @Singleton
@@ -29,7 +28,7 @@ class TodoController @Inject()(
       case Success(res) =>
         val output = res._1.map(todo => {
           val categoryName = res._2.find(category => category.id == todo.v.categoryId).fold("存在しないカテゴリ")(_.v.name)
-          ViewValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, todo.v.state.name)
+          JsValueTodo(todo.id, categoryName, todo.v.title, todo.v.body, todo.v.state.name)
         })
 
         Success(Ok(Json.toJson(output)))

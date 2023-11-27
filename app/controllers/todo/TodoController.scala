@@ -6,8 +6,7 @@ import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
 import model.TodoFormData.form
 import model.{TodoFormData, ViewValueTodo}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.Json
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 
 import javax.inject.{Inject, Singleton}
