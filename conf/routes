@@ -14,3 +14,11 @@ POST    /todo/delete      controllers.todo.TodoController.delete()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+# API用URL
+GET     /api/v1/category/list                controllers.api.v1.todoCategory.TodoCategoryController.list
+GET     /api/v1/status/list                  controllers.api.v1.todoStatus.TodoStatusController.list
+
+GET     /api/v1/todo/list             controllers.api.v1.todo.TodoController.list
+POST    /api/v1/todo/store            controllers.api.v1.todo.TodoController.store
+
