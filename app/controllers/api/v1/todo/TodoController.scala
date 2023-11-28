@@ -2,7 +2,7 @@ package controllers.api.v1.todo
 
 import lib.model.Todo.Id
 import lib.model.TodoStatus.BeforeExec
-import lib.model.{Todo, TodoCategory, TodoStatus}
+import lib.model.{Todo, TodoCategory}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
 import model.TodoFormData.form
 import model.{JsValueTodo, TodoFormData}
@@ -87,5 +87,13 @@ class TodoController @Inject()(
         }
       }
     )
+  }
+
+  def delete(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
+    val todoId = request.body.asJson.get("todoId").toString()
+    TodoRepository.remove(Id(todoId.toLong)).map {
+      case Some(_) => Ok
+      case None => BadRequest
+    }
   }
 }
