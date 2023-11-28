@@ -59,8 +59,10 @@ class TodoController @Inject()(
   def get(id: Long): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     for {
       todoOpt  <- TodoRepository.get(Id(id))
-      // todoOptに関してはあとでNoneチェックがされるのでここではあえて通す
-      categoryOpt <- TodoCategoryRepository.get(todoOpt.fold(TodoCategory.Id(1L))(todo => todo.v.categoryId))
+      categoryOpt <- todoOpt match {
+        case Some(todo) => TodoCategoryRepository.get(todo.v.categoryId)
+        case None       => Future.successful(None)
+      }
     } yield {
       todoOpt.fold(NotFound(Json.toJson("Todoが取得できませんでした")))(todo => {
         categoryOpt.fold(InternalServerError(Json.toJson("カテゴリが取得できませんでした")))(category => {
