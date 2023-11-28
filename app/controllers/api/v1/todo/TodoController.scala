@@ -2,10 +2,10 @@ package controllers.api.v1.todo
 
 import lib.model.Todo.Id
 import lib.model.TodoStatus.BeforeExec
-import lib.model.{Todo, TodoCategory, TodoStatus}
+import lib.model.{Todo, TodoCategory}
 import lib.persistence.onMySQL.{TodoCategoryRepository, TodoRepository}
-import model.TodoFormData.form
 import model.{JsValueTodo, TodoFormData}
+import model.TodoFormData.form
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
@@ -27,14 +27,12 @@ class TodoController @Inject()(
     val futures = todosFuture.zip(categoriesFuture)
     futures.transform {
       case Success(res) =>
-        val output = res._1.map(todo => {
-          val category = res._2.find(category => category.id == todo.v.categoryId) match {
-            case Some(category) => category
-            case None           => return Action(NotFound)
-          }
-          JsValueTodo(todo.id, category.id.toShort, category.v.name, todo.v.title, todo.v.body, todo.v.state.code, todo.v.state.name)
-        })
-
+        val output = for {
+          todo     <- res._1
+          category <- res._2.find(category => category.id == todo.v.categoryId)
+        } yield {
+          JsValueTodo(todo, category)
+        }
         Success(Ok(Json.toJson(output)))
       case Failure(_) => Success(NotFound)
     }
@@ -61,12 +59,12 @@ class TodoController @Inject()(
   def get(id: Long): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
     for {
       todoOpt  <- TodoRepository.get(Id(id))
-      categoryOpt <- TodoCategoryRepository.get(todoOpt.get.v.categoryId)
+      // todoOptに関してはあとでNoneチェックがされるのでここではあえて通す
+      categoryOpt <- TodoCategoryRepository.get(todoOpt.fold(TodoCategory.Id(1L))(todo => todo.v.categoryId))
     } yield {
-      todoOpt.fold(BadRequest(Json.toJson("Todoが取得できませんでした")))(todo => {
-        categoryOpt.fold(BadRequest(Json.toJson("カテゴリが取得できませんでした")))(category => {
-          val output = JsValueTodo(todo.id, category.id.toShort, category.v.name, todo.v.title, todo.v.body, todo.v.state.code, todo.v.state.name)
-          Ok(Json.toJson(output))
+      todoOpt.fold(NotFound(Json.toJson("Todoが取得できませんでした")))(todo => {
+        categoryOpt.fold(InternalServerError(Json.toJson("カテゴリが取得できませんでした")))(category => {
+          Ok(Json.toJson(JsValueTodo(todo, category)))
         })
       })
     }
@@ -75,7 +73,7 @@ class TodoController @Inject()(
   def update(id: Long): Action[AnyContent] = Action async { implicit request =>
     form.bindFromRequest().fold(
       (_: Form[TodoFormData]) => {
-        Future(BadRequest(Json.toJson("失敗しました")))
+        Future.successful(BadRequest(Json.toJson("失敗しました")))
       },
       (form: TodoFormData) => {
         TodoRepository.get(Id(id)).map {
