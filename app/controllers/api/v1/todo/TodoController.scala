@@ -89,9 +89,8 @@ class TodoController @Inject()(
     )
   }
 
-  def delete(): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
-    val todoId = request.body.asJson.get("todoId").toString()
-    TodoRepository.remove(Id(todoId.toLong)).map {
+  def delete(id: Long): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
+    TodoRepository.remove(Id(id)).map {
       case Some(_) => Ok
       case None => BadRequest
     }

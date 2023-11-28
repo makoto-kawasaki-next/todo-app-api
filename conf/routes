@@ -22,5 +22,5 @@ GET     /api/v1/status/list                  controllers.api.v1.todoStatus.TodoS
 GET     /api/v1/todo/list                    controllers.api.v1.todo.TodoController.list
 POST    /api/v1/todo/store                   controllers.api.v1.todo.TodoController.store
 GET     /api/v1/todo/$id<[0-9]+>             controllers.api.v1.todo.TodoController.get(id: Long)
-POST    /api/v1/todo/$id<[0-9]+>/update      controllers.api.v1.todo.TodoController.update(id: Long)
-POST    /api/v1/todo/delete                  controllers.api.v1.todo.TodoController.delete
+PUT     /api/v1/todo/$id<[0-9]+>             controllers.api.v1.todo.TodoController.update(id: Long)
+DELETE  /api/v1/todo/$id<[0-9]+>             controllers.api.v1.todo.TodoController.delete(id: Long)
