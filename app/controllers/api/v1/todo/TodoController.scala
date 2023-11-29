@@ -88,4 +88,11 @@ class TodoController @Inject()(
       }
     )
   }
+
+  def delete(id: Long): Action[AnyContent] = Action async { implicit request: Request[AnyContent] =>
+    TodoRepository.remove(Id(id)).map {
+      case Some(_) => Ok
+      case None => BadRequest
+    }
+  }
 }
